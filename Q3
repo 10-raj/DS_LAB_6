@@ -1,0 +1,66 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Edge {
+    int u, v, weight;
+};
+
+bool compare(const Edge& a, const Edge& b) {
+    return a.weight < b.weight;
+}
+
+class DSU {
+    int parent[100], rank[100];
+public:
+    DSU(int n) {
+        for (int i = 0; i < n; ++i) {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+    }
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);
+        return parent[x];
+    }
+    bool unite(int x, int y) {
+        int xr = find(x), yr = find(y);
+        if (xr == yr) return false;
+        if (rank[xr] < rank[yr])
+            parent[xr] = yr;
+        else if (rank[xr] > rank[yr])
+            parent[yr] = xr;
+        else {
+            parent[yr] = xr;
+            rank[xr]++;
+        }
+        return true;
+    }
+};
+
+int main() {
+    int n, e;
+    cout << "Enter number of vertices and edges: ";
+    cin >> n >> e;
+
+    Edge edges[100];
+    cout << "Enter edges in format: u v weight (0-based indexing)\n";
+    for (int i = 0; i < e; ++i)
+        cin >> edges[i].u >> edges[i].v >> edges[i].weight;
+
+    sort(edges, edges + e, compare);
+
+    DSU dsu(n);
+    int mst_weight = 0;
+    cout << "Edges in MST:\n";
+    for (int i = 0; i < e; ++i) {
+        if (dsu.unite(edges[i].u, edges[i].v)) {
+            cout << edges[i].u << " -- " << edges[i].v << " == " << edges[i].weight << endl;
+            mst_weight += edges[i].weight;
+        }
+    }
+    cout << "Total weight of MST: " << mst_weight << endl;
+    return 0;
+}
